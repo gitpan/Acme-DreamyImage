@@ -1,5 +1,5 @@
 package Acme::DreamyImage;
-our $VERSION = '1.0';
+our $VERSION = '1.1';
 
 use common::sense;
 use Object::Tiny qw(seed width height);
@@ -63,6 +63,17 @@ sub random_image {
     my $image = $self->random_background;
     my $xsize = $self->width;
     my $ysize = $self->height;
+    my $resize = 0;
+
+    if ($xsize < 128) {
+        $resize = 1;
+        $xsize = 128;
+    }
+
+    if ($ysize < 128) {
+        $resize = 1;
+        $ysize = 128;
+    }
 
     # Big Blur Circles
     new_layer(
@@ -105,6 +116,10 @@ sub random_image {
         my ($x, $y) = ($self->random($xsize), $self->random($ysize));
         my $opacity = $self->random(30) + 10;
         $image->circle(fill => { solid => [255, 255, 255, $opacity], combine => "add" },  x => $x, y => $y, r => $size);
+    }
+
+    if ($resize) {
+        $image = $image->scale(type => "nonprop", xpixels => $self->width, ypixels => $self->height);
     }
 
     return $image;
